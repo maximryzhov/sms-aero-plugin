@@ -4,7 +4,7 @@ Tags: elementor, elementor-pro, forms, sms, sms-aero
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,12 +17,14 @@ SMS Aero for Elementor Forms adds **Send SMS** to the Elementor Pro Form widget'
 Each action has these settings:
 
 * A static recipient phone number or comma/newline-separated list of numbers.
-* A message template, including Elementor field shortcodes such as `[field id="name"]`.
+* An optional leading message, including Elementor field shortcodes such as `[field id="name"]`.
 * An optional static sender override; otherwise the global approved sender is used.
 
 Recipient numbers are configured in the action and are never taken from a submitted phone field. The plugin normalizes and deduplicates configured numbers, sends once per valid unique destination, and writes one audit record per destination. A shared batch UUID correlates rows from one form submission.
 
-The protected log screen stores phone numbers, resolved messages, outcomes, provider identifiers/statuses, and the exact SMS Aero response body. Treat this as personal data and establish a suitable retention policy.
+The configured message appears first. Every submitted Elementor field is then appended automatically in its original order as `label: value`, one field per line. Duplicate labels and empty fields are retained, and array values are joined with commas.
+
+The protected log screen stores phone numbers, the final combined messages including all submitted fields, outcomes, provider identifiers/statuses, and the exact SMS Aero response body. Treat this as personal data and establish a suitable retention policy.
 
 An `accepted` result means SMS Aero accepted the request. It does not confirm handset delivery. The plugin does not retry failed or timed-out requests because an ambiguous retry could send a duplicate SMS.
 
@@ -32,7 +34,7 @@ An `accepted` result means SMS Aero accepted the request. It does not confirm ha
 2. Open **SMS Aero > Settings**.
 3. Enter the SMS Aero account email/login, API key, and approved default sender.
 4. Edit an Elementor Pro Form and add **Send SMS** under **Actions After Submit**.
-5. Enter one or more static recipient numbers and a message template.
+5. Enter one or more static recipient numbers and, optionally, a leading message template. All submitted form fields are appended automatically.
 
 The API key input is always blank when rendered. Leaving it blank while saving retains the stored key.
 
@@ -42,7 +44,7 @@ Credentials may instead be supplied with `SMS_AERO_LOGIN`, `SMS_AERO_API_KEY`, a
 
 = Can the recipient come from a submitted form field? =
 
-No. Recipients are deliberately configured as a single phone number or list in the Send SMS action. Form field shortcodes are supported in the message template only.
+No. Recipients are deliberately configured as a single phone number or list in the Send SMS action. Submitted fields are included in the SMS contents, and field shortcodes remain supported in the optional leading message.
 
 = Does accepted mean delivered? =
 
@@ -58,9 +60,12 @@ Nothing by default. Settings and logs are deleted only if the explicit uninstall
 
 == Privacy Notices ==
 
-The custom SMS log table can contain full destination numbers, complete message text, form identifiers, and SMS Aero response data. Access is restricted to administrators with `manage_options`, and recipient numbers are masked in the list view. Site operators remain responsible for notice, retention, export, and deletion obligations applicable to their deployment.
+The custom SMS log table can contain full destination numbers, complete message text with all submitted form fields, form identifiers, and SMS Aero response data. Access is restricted to administrators with `manage_options`, and recipient numbers are masked in the list view. Site operators remain responsible for notice, retention, export, and deletion obligations applicable to their deployment.
 
 == Changelog ==
+
+= 1.0.1 =
+* Append every submitted Elementor form field to the leading message as `label: value`.
 
 = 1.0.0 =
 * Initial release with Elementor Pro action, multi-recipient SMS Aero sending, settings, and per-recipient audit logs.

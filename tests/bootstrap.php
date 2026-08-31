@@ -149,7 +149,7 @@ function trailingslashit( $value ) { return rtrim( (string) $value, '/\\' ) . '/
 function current_user_can( $capability ) { return true; }
 function did_action( $hook_name ) { return 1; }
 
-require_once dirname( __DIR__ ) . '/includes/class-settings.php';
+if ( ! class_exists( 'SMS_Aero_Test_Action_Base' ) ) {
 	abstract class SMS_Aero_Test_Action_Base {
 		abstract public function get_name();
 		abstract public function get_label();

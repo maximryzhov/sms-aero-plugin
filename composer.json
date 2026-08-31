@@ -1,0 +1,28 @@
+{
+  "name": "custom-integration/sms-aero-elementor",
+  "description": "SMS Aero action and audit logging for Elementor Pro Forms.",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
+  "require": {
+    "php": ">=7.4"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.6",
+    "squizlabs/php_codesniffer": "^3.10",
+    "wp-coding-standards/wpcs": "^3.1",
+    "phpcompatibility/phpcompatibility-wp": "^2.1",
+    "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+    "yoast/phpunit-polyfills": "^2.0"
+  },
+  "scripts": {
+    "test": "phpunit",
+    "phpcs": "phpcs",
+    "lint": "php -r \"$files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator('.')); foreach ($files as $file) { if ($file->isFile() && 'php' === $file->getExtension() && false === strpos($file->getPathname(), DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR)) { passthru('php -l ' . escapeshellarg($file->getPathname()), $status); if ($status) exit($status); } }\""
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    },
+    "sort-packages": true
+  }
+}

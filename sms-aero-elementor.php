@@ -2,7 +2,7 @@
 /**
  * Plugin Name: SMS Aero for Elementor Forms
  * Description: Adds an SMS Aero action to Elementor Pro Forms and logs every SMS attempt.
- * Version: 1.0.1
+ * Version: 1.0.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Custom Integration
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SMS_AERO_ELEMENTOR_VERSION', '1.0.1' );
+define( 'SMS_AERO_ELEMENTOR_VERSION', '1.0.0' );
 define( 'SMS_AERO_ELEMENTOR_SCHEMA_VERSION', '1.0.0' );
 define( 'SMS_AERO_ELEMENTOR_FILE', __FILE__ );
 define( 'SMS_AERO_ELEMENTOR_DIR', plugin_dir_path( __FILE__ ) );

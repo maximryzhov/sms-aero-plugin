@@ -39,18 +39,7 @@ final class SendSmsActionTest extends TestCase {
 				Send_SMS_Action::MESSAGE_CONTROL    => 'New request from [field id="name"]',
 				Send_SMS_Action::SENDER_CONTROL     => '',
 			),
-			array(
-				'name' => array(
-					'id'    => 'name',
-					'title' => 'Name',
-					'value' => 'Alice',
-				),
-				'email' => array(
-					'id'    => 'email',
-					'title' => 'Email',
-					'value' => 'alice@example.test',
-				),
-			)
+			array( 'name' => 'Alice' )
 		);
 		$ajax   = new SMS_Aero_Test_Ajax_Handler();
 		$action = new Send_SMS_Action( $logs, $client );
@@ -60,9 +49,7 @@ final class SendSmsActionTest extends TestCase {
 		$this->assertCount( 2, $client->calls );
 		$this->assertSame( '79990000000', $client->calls[0]['number'] );
 		$this->assertSame( '79991111111', $client->calls[1]['number'] );
-		$message = "New request from Alice\nName: Alice\nEmail: alice@example.test";
-		$this->assertSame( $message, $client->calls[0]['message'] );
-		$this->assertSame( $message, $client->calls[1]['message'] );
+		$this->assertSame( 'New request from Alice', $client->calls[0]['message'] );
 		$this->assertSame( 'GlobalSign', $client->calls[0]['sender'] );
 		$this->assertSame( 'login@example.test', $client->calls[0]['login'] );
 		$this->assertSame( 'secret-key', $client->calls[0]['api_key'] );
@@ -72,7 +59,6 @@ final class SendSmsActionTest extends TestCase {
 		$this->assertCount( 1, array_unique( array_column( $logs->rows, 'batch_uuid' ) ) );
 		$this->assertCount( 3, array_unique( array_column( $logs->rows, 'attempt_uuid' ) ) );
 		$this->assertCount( 2, $logs->updates );
-		$this->assertSame( array( $message, $message, $message ), array_column( $logs->rows, 'message' ) );
 
 		$this->assertFalse( $ajax->is_success );
 		$this->assertSame(
@@ -106,32 +92,6 @@ final class SendSmsActionTest extends TestCase {
 		$this->assertSame( array( 'accepted', 'accepted' ), array_column( $logs->rows, 'outcome' ) );
 	}
 
-	public function test_blank_template_sends_all_fields() {
-		$logs   = new SMS_Aero_Test_Log_Repository();
-		$client = new SMS_Aero_Test_SMS_Client( array( '79990000000' => 'accepted' ) );
-		$record = new SMS_Aero_Test_Form_Record(
-			array(
-				Send_SMS_Action::RECIPIENTS_CONTROL => '79990000000',
-				Send_SMS_Action::MESSAGE_CONTROL    => '',
-			),
-			array(
-				'name' => array(
-					'id'    => 'name',
-					'title' => 'Name',
-					'value' => 'Alice',
-				),
-			)
-		);
-		$ajax   = new SMS_Aero_Test_Ajax_Handler();
-
-		( new Send_SMS_Action( $logs, $client ) )->run( $record, $ajax );
-
-		$this->assertTrue( $ajax->is_success );
-		$this->assertCount( 1, $client->calls );
-		$this->assertSame( 'Name: Alice', $client->calls[0]['message'] );
-		$this->assertSame( 'Name: Alice', $logs->rows[0]['message'] );
-	}
-
 	public function test_skips_when_a_previous_action_failed() {
 		$logs   = new SMS_Aero_Test_Log_Repository();
 		$client = new SMS_Aero_Test_SMS_Client( array() );
@@ -148,25 +108,6 @@ final class SendSmsActionTest extends TestCase {
 
 		$this->assertSame( array(), $logs->rows );
 		$this->assertSame( array(), $client->calls );
-	}
-
-	public function test_blank_template_and_no_fields_is_invalid() {
-		$logs   = new SMS_Aero_Test_Log_Repository();
-		$client = new SMS_Aero_Test_SMS_Client( array() );
-		$record = new SMS_Aero_Test_Form_Record(
-			array(
-				Send_SMS_Action::RECIPIENTS_CONTROL => '79990000000',
-				Send_SMS_Action::MESSAGE_CONTROL    => '',
-			)
-		);
-		$ajax   = new SMS_Aero_Test_Ajax_Handler();
-
-		( new Send_SMS_Action( $logs, $client ) )->run( $record, $ajax );
-
-		$this->assertSame( array(), $client->calls );
-		$this->assertSame( 'invalid_input', $logs->rows[0]['outcome'] );
-		$this->assertSame( 'empty_message', $logs->rows[0]['error_code'] );
-		$this->assertCount( 1, $ajax->messages );
 	}
 
 	public function test_logs_missing_configuration_without_calling_transport() {
@@ -250,16 +191,11 @@ final class SMS_Aero_Test_Form_Record {
 	}
 
 	public function get( $property ) {
-		if ( 'form_settings' === $property ) {
-			return $this->settings;
-		}
-
-		return 'fields' === $property ? $this->fields : null;
+		return 'form_settings' === $property ? $this->settings : null;
 	}
 
 	public function replace_setting_shortcodes( $template ) {
-		foreach ( $this->fields as $id => $field ) {
-			$value = isset( $field['value'] ) && is_scalar( $field['value'] ) ? (string) $field['value'] : '';
+		foreach ( $this->fields as $id => $value ) {
 			$template = str_replace( '[field id="' . $id . '"]', $value, $template );
 		}
 

@@ -110,7 +110,7 @@ final class Send_SMS_Action extends Action_Base {
 				'label_block' => true,
 				'rows'        => 6,
 				'render_type' => 'none',
-				'description' => esc_html__( 'Optional leading text. Elementor field shortcodes are supported, and all submitted fields are appended automatically as label: value lines.', 'sms-aero-elementor' ),
+				'description' => esc_html__( 'Form values may be inserted with Elementor shortcodes, for example: New request from [field id="name"].', 'sms-aero-elementor' ),
 			)
 		);
 

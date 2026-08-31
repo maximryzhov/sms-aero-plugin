@@ -17,22 +17,10 @@ A WordPress plugin that adds a **Send SMS** action to Elementor Pro Forms using 
 4. Edit an Elementor Pro Form and add **Send SMS** under **Actions After Submit**.
 5. In the **SMS Aero** action section, configure:
    - **Recipient phone numbers:** one static number or a comma/newline-separated list.
-   - **Message:** optional leading text and/or Elementor field shortcodes such as `[field id="name"]`. Every submitted field is appended automatically.
+   - **Message:** static text and/or Elementor field shortcodes such as `[field id="name"]`.
    - **Sender override:** an optional static approved sender for this form.
 
-Recipient numbers are action configuration. They are not read from submitted form fields. Submitted fields are used only in the SMS contents.
-
-## Message contents
-
-The configured message is sent first. The plugin then appends every submitted Elementor field in its original order, one field per line:
-
-```text
-Name: Alice
-Email: alice@example.com
-Message: Please call me back
-```
-
-Elementor field labels are used when available, with field IDs as fallbacks. Duplicate labels and empty fields are retained. Array values, such as checkbox selections, are joined with commas. The final combined text is sent to every configured recipient and stored in each corresponding audit row.
+Recipient numbers are action configuration. They are not read from submitted form fields.
 
 ## Recipient handling
 
@@ -54,7 +42,7 @@ Credentials and authorization headers are never placed in audit logs, URLs, Elem
 
 ## Logs and privacy
 
-**SMS Aero → SMS Logs** displays the custom table `{prefix}sms_aero_logs`. It stores destination numbers, the final combined message (including all submitted fields), provider response bodies, and form metadata. This is personal data: apply an appropriate retention/access policy and mention it in the site's privacy documentation.
+**SMS Aero → SMS Logs** displays the custom table `{prefix}sms_aero_logs`. It stores destination numbers, full resolved message text, provider response bodies, and form metadata. This is personal data: apply an appropriate retention/access policy and mention it in the site's privacy documentation.
 
 The list view masks destination numbers; users with `manage_options` can open the protected detail screen to inspect the full audit row and escaped raw provider response.
 

@@ -58,7 +58,7 @@ final class Submission_Mapper {
 	}
 
 	/**
-	 * Resolve the configured template and append every submitted form field.
+	 * Resolve and sanitize the message template using Elementor form fields.
 	 *
 	 * @param object $record   Elementor Form_Record-like object.
 	 * @param string $template Configured message template.
@@ -74,123 +74,8 @@ final class Submission_Mapper {
 		$message = wp_strip_all_tags( $message );
 		$message = str_replace( array( "\r\n", "\r" ), "\n", $message );
 		$message = preg_replace( "/[\t ]+\n/", "\n", $message );
-		$message = trim( null === $message ? '' : $message );
-		$lines   = $this->field_lines( $record );
 
-		if ( empty( $lines ) ) {
-			return $message;
-		}
-
-		$fields = implode( "\n", $lines );
-
-		return '' === $message ? $fields : $message . "\n" . $fields;
-	}
-
-	/**
-	 * Format submitted fields in their original order.
-	 *
-	 * @param object $record Elementor Form_Record-like object.
-	 * @return array<int,string>
-	 */
-	private function field_lines( $record ) {
-		if ( ! is_object( $record ) || ! is_callable( array( $record, 'get' ) ) ) {
-			return array();
-		}
-
-		$fields = $record->get( 'fields' );
-		if ( ! is_array( $fields ) ) {
-			return array();
-		}
-
-		$lines = array();
-
-		foreach ( $fields as $key => $field ) {
-			if ( ! is_array( $field ) ) {
-				continue;
-			}
-
-			$label = $this->field_label( $field, $key );
-			if ( '' === $label ) {
-				continue;
-			}
-
-			if ( array_key_exists( 'value', $field ) ) {
-				$value = $field['value'];
-			} elseif ( array_key_exists( 'raw_value', $field ) ) {
-				$value = $field['raw_value'];
-			} else {
-				$value = '';
-			}
-
-			$value   = $this->printable_value( $value );
-			$lines[] = $label . ':' . ( '' === $value ? '' : ' ' . $value );
-		}
-
-		return $lines;
-	}
-
-	/**
-	 * Resolve a printable field label with stable fallbacks.
-	 *
-	 * @param array<string,mixed> $field Submitted field.
-	 * @param int|string          $key   Field collection key.
-	 * @return string
-	 */
-	private function field_label( $field, $key ) {
-		$candidates = array(
-			isset( $field['title'] ) && is_scalar( $field['title'] ) ? $field['title'] : '',
-			isset( $field['id'] ) && is_scalar( $field['id'] ) ? $field['id'] : '',
-			is_scalar( $key ) ? $key : '',
-		);
-
-		foreach ( $candidates as $candidate ) {
-			$label = $this->single_line( (string) $candidate );
-			if ( '' !== $label ) {
-				return $label;
-			}
-		}
-
-		return '';
-	}
-
-	/**
-	 * Convert a submitted field value to printable single-line text.
-	 *
-	 * @param mixed $value Submitted value.
-	 * @return string
-	 */
-	private function printable_value( $value ) {
-		if ( is_array( $value ) ) {
-			$parts = array();
-
-			foreach ( $value as $item ) {
-				$item = $this->printable_value( $item );
-				if ( '' !== $item ) {
-					$parts[] = $item;
-				}
-			}
-
-			return implode( ', ', $parts );
-		}
-
-		if ( ! is_scalar( $value ) || is_bool( $value ) && false === $value ) {
-			return '';
-		}
-
-		return $this->single_line( (string) $value );
-	}
-
-	/**
-	 * Strip markup and collapse whitespace into one physical line.
-	 *
-	 * @param string $value Text to normalize.
-	 * @return string
-	 */
-	private function single_line( $value ) {
-		$value = wp_strip_all_tags( (string) $value, true );
-		$value = preg_replace( '/\s+/u', ' ', $value );
-
-		return trim( null === $value ? '' : $value );
+		return trim( null === $message ? '' : $message );
 	}
 
 	/**

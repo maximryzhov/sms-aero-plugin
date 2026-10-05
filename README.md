@@ -1,66 +1,69 @@
-# SMS Aero for Elementor Forms
+# SMS Aero для Elementor Forms
 
-A WordPress plugin that adds a **Send SMS** action to Elementor Pro Forms using [SMS Aero API v2](https://smsaero.ru/integration/documentation/api/). Every intended destination gets a separate audit row in a custom WordPress table.
+**Русский** | [English](README-EN.md)
+---
 
-## Requirements
+Плагин для WordPress, который добавляет действие **Отправить SMS** в Elementor Pro Forms с помощью [API SMS Aero v2](https://smsaero.ru/integration/documentation/api/). Для каждого целевого адреса создается отдельная строка аудита в специальной таблице WordPress.
 
-- WordPress 6.0 or newer
-- PHP 7.4 or newer
-- Elementor and Elementor Pro Forms
-- An SMS Aero account, API key, and approved sender name
+## Требования
 
-## Installation
+- WordPress 6.0 или более поздняя версия
+- PHP 7.4 или более поздняя версия
+- Elementor и Elementor Pro Forms
+- Учетная запись в SMS Aero, ключ API и подтвержденное имя отправителя
 
-1. Copy this directory to `wp-content/plugins/sms-aero-elementor`.
-2. Activate **SMS Aero for Elementor Forms** in WordPress.
-3. Open **SMS Aero → Settings** and enter the SMS Aero account login, API key, and default approved sender.
-4. Edit an Elementor Pro Form and add **Send SMS** under **Actions After Submit**.
-5. In the **SMS Aero** action section, configure:
-   - **Recipient phone numbers:** one static number or a comma/newline-separated list.
-   - **Message:** static text and/or Elementor field shortcodes such as `[field id="name"]`.
-   - **Sender override:** an optional static approved sender for this form.
+## Установка
 
-Recipient numbers are action configuration. They are not read from submitted form fields.
+1. Скопируйте этот каталог в папку `wp-content/plugins/sms-aero-elementor`.
+2. Активируйте **SMS Aero для Elementor Forms** в WordPress.
+3. Откройте **SMS Aero → Настройки** и введите данные для входа в учетную запись SMS Aero, ключ API и подтвержденное имя отправителя по умолчанию.
+4. Отредактируйте форму Elementor Pro и добавьте **Отправить SMS** в раздел **Действия после отправки**.
+5. В разделе **SMS Aero** настройте:
+   - **Номера телефонов получателей:** один статический номер или список, разделенный запятыми и символами перевода строки.
+   - **Сообщение:** статический текст и/или шорткоды полей Elementor, такие как `[field id="name"]`.
+   - **Переопределение отправителя:** необязательный статический утвержденный отправитель для этой формы.
 
-## Recipient handling
+Номера получателей — это конфигурация действий. Они не считываются из полей отправленной формы.
 
-The plugin trims display punctuation, removes a leading `+`, converts an 11-digit Russian number starting with `8` to `7`, validates 10–15 digits, and deduplicates normalized destinations while preserving configured order. It makes one API request and one log row per valid unique destination. Invalid configured entries also receive audit rows but do not trigger API calls.
+## Обработка получателей
 
-If a list contains a mixture of valid and invalid destinations, valid destinations are still processed. Elementor receives one generic aggregate error if any destination fails.
+Плагин удаляет отображаемые знаки препинания, убирает начальный знак «+», преобразует 11-значный российский номер, начинающийся с «8», в «7», проверяет наличие 10–15 цифр и удаляет дубликаты нормализованных адресов, сохраняя заданный порядок. Для каждого действительного уникального адреса выполняется один запрос к API и создается одна строка в журнале. Некорректно заданные адреса также регистрируются в журнале аудита, но не вызывают запросов к API.
 
-## Credentials and deployment constants
+Если в списке есть как действительные, так и некорректные адреса, действительные адреса все равно обрабатываются. Elementor получает одну общую ошибку, если какой-либо адрес не проходит проверку.
 
-The API key is never rendered back into the settings form. Submitting a blank API-key field retains the saved key. These constants may be defined in `wp-config.php` and override saved values:
+## Учетные данные и константы развертывания
+
+Ключ API никогда не возвращается в форму настроек. Если в поле «Ключ API» оставить пустое значение, сохраненный ключ останется на месте. Эти константы можно определить в файле wp-config.php и переопределить сохраненные значения.
 
 ```php
-define( 'SMS_AERO_LOGIN', 'account@example.com' );
-define( 'SMS_AERO_API_KEY', 'secret-api-key' );
-define( 'SMS_AERO_SIGN', 'Approved Sign' );
+define( 'SMS_AERO_LOGIN', 'account@example.com ' );
+определить( 'SMS_AERO_API_KEY', 'секретный api-ключ' );
+определить( 'SMS_AERO_SIGN', 'Одобренный знак' );
 ```
 
-Credentials and authorization headers are never placed in audit logs, URLs, Elementor settings, template exports, or public form errors.
+Учетные данные и заголовки авторизации никогда не указываются в журналах аудита, URL-адресах, настройках элементов, экспорте шаблонов или ошибках общедоступных форм.
 
-## Logs and privacy
+## Журналы и конфиденциальность
 
-**SMS Aero → SMS Logs** displays the custom table `{prefix}sms_aero_logs`. It stores destination numbers, full resolved message text, provider response bodies, and form metadata. This is personal data: apply an appropriate retention/access policy and mention it in the site's privacy documentation.
+**SMS Aero → SMS-журналы** отображает пользовательскую таблицу "{префикс}sms_aero_logs". В ней хранятся номера адресатов, полный текст сообщения, текст ответа поставщика и метаданные формы. Это персональные данные: примените соответствующую политику хранения/доступа и укажите это в документации по защите данных сайта.
 
-The list view masks destination numbers; users with `manage_options` can open the protected detail screen to inspect the full audit row and escaped raw provider response.
+Представление списка маскирует номера адресатов; пользователи с "manage_options" могут открыть защищенный подробный экран, чтобы просмотреть полную строку аудита и необработанный ответ поставщика.
 
-An `accepted` outcome means SMS Aero accepted the request (for example, queued or under moderation). It does not mean that the handset received the message.
+Результат "принято" означает, что SMS Aero принял запрос (например, он помещен в очередь или находится на модерации). Это не означает, что телефон получил сообщение.
 
-## Delivery and failure behavior
+## Поведение при доставке и сбоях
 
-Each destination is sent only once. The plugin deliberately performs no automatic retries because a network timeout can occur after SMS Aero accepted a request; retrying could send a duplicate SMS. Transport interruptions that may be ambiguous are logged as `unknown`.
+Каждое сообщение отправляется только один раз. Плагин намеренно не выполняет повторные попытки, так как после того, как SMS Aero примет запрос, может истечь время ожидания ответа по сети, и повторная попытка приведет к отправке дубликата SMS. Прерывания в работе транспорта, которые могут быть неоднозначными, регистрируются как «неизвестные».
 
-Elementor runs selected actions as a chain. The SMS action does not promise to cancel actions that Elementor runs later. It skips sending if an earlier action has already marked the form response unsuccessful.
+Elementor запускает выбранные действия последовательно. Действие SMS не отменяет действия, которые Elementor запускает позже. Отправка пропускается, если предыдущее действие уже пометило ответ формы как неудачный.
 
-## Uninstall
+## Удаление
 
-Settings and logs are preserved by default. To delete both on uninstall, enable **Delete SMS Aero settings and all SMS logs when the plugin is uninstalled** before deleting the plugin.
+По умолчанию настройки и логи сохраняются. Чтобы удалить и то, и другое при деинсталляции, перед удалением плагина включите параметр **Удалить настройки SMS Aero и все логи SMS при деинсталляции плагина**.
 
-## Development
+## Разработка
 
-Production has no Composer runtime dependency. Development commands are:
+В рабочей среде нет зависимости от среды выполнения Composer. Команды для разработки:
 
 ```sh
 composer install
@@ -69,4 +72,4 @@ composer phpcs
 composer lint
 ```
 
-All tests use injected fake HTTP transports and must not contact SMS Aero.
+Все тесты используют подставные HTTP-транспорты и не должны взаимодействовать с SMS Aero.

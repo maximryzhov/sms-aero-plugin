@@ -1,66 +1,66 @@
-=== SMS Aero for Elementor Forms ===
-Contributors: custom-integration
-Tags: elementor, elementor-pro, forms, sms, sms-aero
-Requires at least: 6.0
-Tested up to: 6.8
-Requires PHP: 7.4
-Stable tag: 1.0.0
-License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
+=== SMS Aero для Elementor Forms ===
+Авторы: custom-integration
+Теги: elementor, elementor-pro, формы, sms, sms-aero
+Требуется версия не ниже: 6.0
+Протестировано на версиях до: 6.8
+Требуется PHP: 7.4
+Стабильная версия: 1.0.0
+Лицензия: GPLv2 или более поздняя версия
+Ссылка на лицензию: https://www.gnu.org/licenses/gpl-2.0.html
 
-Adds a Send SMS action to Elementor Pro Forms through SMS Aero API v2 and records every SMS attempt in a custom audit table.
+Добавляет действие «Отправить SMS» в Elementor Pro Forms через SMS Aero API v2 и записывает каждую попытку отправки SMS в специальную таблицу аудита.
 
-== Description ==
+== Описание ==
 
-SMS Aero for Elementor Forms adds **Send SMS** to the Elementor Pro Form widget's **Actions After Submit** selector.
+SMS Aero для Elementor Forms добавляет опцию **Отправить SMS** в селектор **Действия после отправки** виджета Elementor Pro Form.
 
-Each action has these settings:
+Каждое действие имеет следующие настройки:
 
-* A static recipient phone number or comma/newline-separated list of numbers.
-* A message template, including Elementor field shortcodes such as `[field id="name"]`.
-* An optional static sender override; otherwise the global approved sender is used.
+* Статический номер телефона получателя или список номеров, разделенных запятыми и символами перевода строки.
+* Шаблон сообщения, включающий шорткоды полей Elementor, например `[field id="name"]`.
+* Необязательное переопределение статического отправителя; в противном случае используется глобальный утвержденный отправитель.
 
-Recipient numbers are configured in the action and are never taken from a submitted phone field. The plugin normalizes and deduplicates configured numbers, sends once per valid unique destination, and writes one audit record per destination. A shared batch UUID correlates rows from one form submission.
+Номера получателей указываются в действии и никогда не берутся из поля с введенным номером телефона. Плагин нормализует и устраняет дубликаты среди указанных номеров, отправляет SMS по одному разу на каждый действительный уникальный номер и создает по одной записи аудита для каждого номера. Общий UUID пакета коррелирует строки из одной отправки формы.
 
-The protected log screen stores phone numbers, resolved messages, outcomes, provider identifiers/statuses, and the exact SMS Aero response body. Treat this as personal data and establish a suitable retention policy.
+На защищенном экране журнала хранятся номера телефонов, обработанные сообщения, результаты, идентификаторы/статусы провайдера, а также полный текст ответа SMS Aero. Относитесь к этим данным как к персональным и установите подходящую политику хранения.
 
-An `accepted` result means SMS Aero accepted the request. It does not confirm handset delivery. The plugin does not retry failed or timed-out requests because an ambiguous retry could send a duplicate SMS.
+Результат «accepted» означает, что SMS Aero принял запрос. Это не означает, что сообщение доставлено на телефон. Плагин не повторяет отправку в случае сбоя или истечения времени ожидания, так как повторная отправка может привести к отправке дубликата SMS.
 
-== Installation ==
+== Установка ==
 
-1. Upload the plugin directory to `/wp-content/plugins/` and activate it.
-2. Open **SMS Aero > Settings**.
-3. Enter the SMS Aero account email/login, API key, and approved default sender.
-4. Edit an Elementor Pro Form and add **Send SMS** under **Actions After Submit**.
-5. Enter one or more static recipient numbers and a message template.
+1. Загрузите каталог с плагином в папку `/wp-content/plugins/` и активируйте его.
+2. Откройте **SMS Aero > Настройки**.
+3. Введите адрес электронной почты или логин для входа в учетную запись SMS Aero, ключ API и утвержденный отправитель по умолчанию.
+4. Отредактируйте форму Elementor Pro и добавьте **Отправить SMS** в раздел **Действия после отправки**.
+5. Введите один или несколько статических номеров получателей и шаблон сообщения.
 
-The API key input is always blank when rendered. Leaving it blank while saving retains the stored key.
+При отображении поле для ввода ключа API всегда пустое. Если оставить его пустым при сохранении, сохраненный ключ останется в системе.
 
-Credentials may instead be supplied with `SMS_AERO_LOGIN`, `SMS_AERO_API_KEY`, and `SMS_AERO_SIGN` constants in `wp-config.php`.
+Вместо этого учетные данные можно указать с помощью констант `SMS_AERO_LOGIN`, `SMS_AERO_API_KEY` и `SMS_AERO_SIGN` в `wp-config.php`.
 
-== Frequently Asked Questions ==
+== Часто задаваемые вопросы ==
 
-= Can the recipient come from a submitted form field? =
+= Можно ли указать получателя из поля формы, отправленной пользователем? =
 
-No. Recipients are deliberately configured as a single phone number or list in the Send SMS action. Form field shortcodes are supported in the message template only.
+Нет. Получатели намеренно указываются в виде одного телефонного номера или списка в действии «Отправить SMS». Коды полей формы поддерживаются только в шаблоне сообщения.
 
-= Does accepted mean delivered? =
+= Означает ли «принято» доставку? =
 
-No. It only means SMS Aero accepted the API request, potentially into its queue or moderation process.
+Нет. Это означает лишь то, что SMS Aero принял запрос API, который, возможно, был отправлен в очередь или на модерацию.
 
-= Does the plugin retry a timeout? =
+= Повторяет ли плагин попытку отправки после истечения времени ожидания? =
 
-No. The provider might have accepted the request before the connection timed out, so retrying could create a duplicate SMS.
+Нет. Возможно, провайдер принял запрос до истечения времени ожидания подключения, поэтому повторная попытка может привести к отправке дубликата SMS.
 
-= What is removed on uninstall? =
+= Что удаляется при деинсталляции? =
 
-Nothing by default. Settings and logs are deleted only if the explicit uninstall-deletion option was enabled beforehand.
+По умолчанию ничего. Настройки и логи удаляются только в том случае, если перед этим была включена опция явного удаления при деинсталляции.
 
-== Privacy Notices ==
+== Уведомления о конфиденциальности ==
 
-The custom SMS log table can contain full destination numbers, complete message text, form identifiers, and SMS Aero response data. Access is restricted to administrators with `manage_options`, and recipient numbers are masked in the list view. Site operators remain responsible for notice, retention, export, and deletion obligations applicable to their deployment.
+Настраиваемая таблица логов SMS может содержать полные номера получателей, полный текст сообщений, идентификаторы форм и данные ответов SMS Aero. Доступ к ней ограничен для администраторов с правами `manage_options`, а номера получателей в списке скрыты. Операторы сайта несут ответственность за соблюдение требований к уведомлениям, хранению, экспорту и удалению данных, применимых к их развертыванию.
 
-== Changelog ==
+== Журнал изменений ==
 
 = 1.0.0 =
-* Initial release with Elementor Pro action, multi-recipient SMS Aero sending, settings, and per-recipient audit logs.
+* Первоначальная версия с действием Elementor Pro, отправкой SMS Aero для нескольких получателей, настройками и аудиторскими логами для каждого получателя.
